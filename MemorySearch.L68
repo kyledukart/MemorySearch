@@ -1,0 +1,71 @@
+00000400 Starting Address
+Assembler used: EASy68K Editor/Assembler v5.16.01
+Created On: 11/8/2019 6:14:40 PM
+
+00000000                             1  *-----------------------------------------------------------
+00000000                             2  * Title      : HW4 #2
+00000000                             3  * Written by : Kyle Dukart
+00000000                             4  * Date       :
+00000000                             5  * Description: This is a program to read memory from $7000 to
+00000000                             6  *   $8000 and look for the pattern in memory.  If the pattern is
+00000000                             7  *   found, then the address of the word is stored in memory.  If no
+00000000                             8  *   pattern match is found the program stores $00000000 in memory location.
+00000000                             9  *   The pattern search algorithm assumes that the pattern is located
+00000000                            10  *   on the boundary.
+00000000                            11  *-----------------------------------------------------------
+00000000  =00007000                 12  test_st EQU $00007000   ; start of block to fill
+00000000  =00008000                 13  test_end    EQU $00008000   ; last address to fill
+00000000  =0000AA50                 14  pattern EQU $AA50       ; pattern to find
+00000000  =000A0000                 15  stack   EQU $000A0000   ; locate the stack if necessary
+00000000  =00000400                 16  start   EQU $400        ; program begins here
+00000000  =00002700                 17  exit    EQU $2700       ; simulator stop code
+00000000  =00000001                 18  byte    EQU 1           ; advance by 1 byte
+00000000                            19  
+00000000                            20  
+00000400                            21      ORG    start        ; start here
+00000400  41F8 7000                 22      LEA test_st,A0      ; load starting address
+00000404  43F9 00008000             23      LEA test_end,A1     ; load ending address
+0000040A  45F9 0000042C             24      LEA addr_match,A2   ; address of match saved here
+00000410  1239 0000AA50             25      MOVE.B  pattern,D1  ; store pattern in D1
+00000416                            26  loop:
+00000416  B210                      27      CMP.B   (A0),D1     ; test pattern
+00000418  6700 000C                 28      BEQ match           ; they're the same, save it and exit
+0000041C  5288                      29      ADDQ.L  #byte,A0    ; increment pointer
+0000041E  B1C9                      30      CMPA.L  A1,A0       ; check if end of addresses
+00000420  6E00 0006                 31      BGT no_match        ; check if past range, exit
+00000424  60F0                      32      BRA loop            ; go back and try again
+00000426                            33      
+00000426                            34  match:
+00000426  2488                      35      MOVE.L  A0,(A2)     ; Save contents of A0 and exit
+00000428                            36      
+00000428                            37  no_match:
+00000428  4E72 2700                 38      STOP    #exit       ; break out of simulator
+0000042C                            39  
+0000042C                            40  * Put program code here
+0000042C                            41  
+0000042C= 00000000                  42  addr_match DC.L $00000000   ; initialize to no match value
+00000430                            43  
+00000430  FFFF FFFF                 44      SIMHALT             ; halt simulator
+00000434                            45  
+00000434                            46  * Put variables and constants here
+00000434                            47  
+00000434                            48      END    START        ; last line of source
+
+No errors detected
+No warnings generated
+
+
+SYMBOL TABLE INFORMATION
+Symbol-name         Value
+-------------------------
+ADDR_MATCH          42C
+BYTE                1
+EXIT                2700
+LOOP                416
+MATCH               426
+NO_MATCH            428
+PATTERN             AA50
+STACK               A0000
+START               400
+TEST_END            8000
+TEST_ST             7000
